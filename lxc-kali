@@ -1,9 +1,24 @@
-#!/bin/bash
+#!/bin/bash -vx
+# Detect use under userns (unsupported)
+for arg in "$@"; do
+    [ "$arg" = "--" ] && break
+    if [ "$arg" = "--mapped-uid" -o "$arg" = "--mapped-gid" ]; then
+        echo "This template can't be used for unprivileged containers." 1>&2
+        echo "You may want to try the \"download\" template instead." 1>&2
+        exit 1
+    fi
+done
+
+# Make sure the usual locations are in PATH
+export PATH=$PATH:/usr/sbin:/usr/bin:/sbin:/bin
+
 SSH_PORT=65512
 SSH_KEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDfPIOm6TSo7pffbQzWCp9NILUZTPURMotgyfILXzbqb5xmaYGPN/CnDkbTD6EXoHklqhnT7eLVHjg2F93GtkNf8k5cy1UpPBkJ9YUGK9bJdaVN/VtFhU+lAUcXVu/DfPBfCywGDlznmlJItwCHY39vB8z+SqK+OEDkL1hARSmaG4ulhdymJ8wg8U5jOHmnaVi0eGXUrjVYK67jahru/7r90Vpt+3wWLzzHAH9hqI+IJImsFUxaNQuunLhmtGVg991Tz8tqwQjIJVaCdOcKN7KWhN+rXZPqYfX8OEe6S+BxPSW+13IBu6X61la96MjGGEm+XgsrkSLqBk7J75jlycwN"
 DNS_SERVER="8.8.8.8"
 MIRROR="http://ftp.uk.debian.org/debian"
 DEBIAN_FRONTEND=noninteractive
+LOCALSTATEDIR="/var"
+LXC_TEMPLATE_CONFIG="/usr/share/lxc/config"
 
 configure_kali()
 {
